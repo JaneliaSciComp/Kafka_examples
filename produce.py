@@ -4,7 +4,7 @@ from random import randint
 from time import gmtime, strftime, sleep
 
 # Produce
-producer = KafkaProducer(bootstrap_servers=['kafka'])
+producer = KafkaProducer(bootstrap_servers=['kafka.int.janelia.org'])
 messagenum = 1
 while True:
     future = producer.send('test', 'Periodic message ' + str(messagenum) + ' ' + strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()))

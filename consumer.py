@@ -7,7 +7,7 @@ def read_messages(server, topic, group, offset):
     if server:
         server_list = [server + ':9092']
     else:
-        server_list = ['kafka:9092', 'kafka2:9092', 'kafka3:9092']
+        server_list = ['kafka.int.janelia.org:9092', 'kafka2.int.janelia.org:9092', 'kafka3.int.janelia.org:9092']
     if not group:
         group = None
     consumer = KafkaConsumer(topic,

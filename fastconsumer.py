@@ -5,7 +5,7 @@ from confluent_kafka import Consumer, KafkaError
 
 def read_messages(server, topic, group, offset):
     if not server:
-        server = 'kafka,kafka2,kafka3'
+        server = 'kafka.int.janelia.org,kafka2.int.janelia.org,kafka3.int.janelia.org'
     if not group:
         group = None
     cons = Consumer({'bootstrap.servers': server, 'group.id': group,

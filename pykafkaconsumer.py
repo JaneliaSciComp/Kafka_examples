@@ -8,7 +8,7 @@ def read_messages(server, topic, group, offset):
     if server:
         server += ':9092'
     else:
-        server = 'kafka:9092,kafka2:9092,kafka3:9092'
+        server = 'kafka.int.janelia.org:9092,kafka2.int.janelia.org:9092,kafka3.int.janelia.org:9092'
     client = KafkaClient(server)
     ctopic = client.topics[topic]
     if offset == 'latest':
