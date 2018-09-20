@@ -15,14 +15,27 @@ def read_messages():
     consumer = KafkaConsumer(ARGS.topic,
                              bootstrap_servers=server_list,
                              group_id=ARGS.group,
-                             auto_offset_reset=ARGS.offset)
+                             auto_offset_reset=ARGS.offset,
+                             consumer_timeout_ms=int(5000))
     for message in consumer:
         if ARGS.debug:
             pprint(message)
-        print ("[%s] %s:%d:%d: key=%s value=%s" % (datetime.fromtimestamp(message.timestamp/1000).strftime('%Y-%m-%d %H:%M:%S'),
-                                                   message.topic, message.partition,
-                                                   message.offset, message.key,
-                                                   message.value))
+        try:
+            print ("[%s] %s:%d:%d: key=%s value=%s" % (datetime.fromtimestamp(message.timestamp/1000).strftime('%Y-%m-%d %H:%M:%S'),
+                                                       message.topic, message.partition,
+                                                       message.offset, message.key,
+                                                       message.value))
+        except UnicodeDecodeError:
+            print("[%s] %s:%d:%d: key=%s CANNOT DECODE MESSAGE" % (datetime.fromtimestamp(message.timestamp/1000).strftime('%Y-%m-%d %H:%M:%S'),
+                                                                   message.topic, message.partition,
+                                                                   message.offset, message.key))
+            pprint(message)
+            sys.exit(-1)
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print(message)
+            sys.exit(-1)
 
 
 if __name__ == '__main__':
