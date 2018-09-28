@@ -9,7 +9,7 @@ import MySQLdb
 READ = {'completed': "SELECT id,user,annotation,type,UNIX_TIMESTAMP(start_date),"
                      + "UNIX_TIMESTAMP(complete_date),"
                      + "UNIX_TIMESTAMP(complete_date)-UNIX_TIMESTAMP(start_date) "
-                     + "FROM assignment_vw WHERE is_complete=1"
+                     + "FROM assignment_vw WHERE is_complete=1 AND UNIX_TIMESTAMP(complete_date)>0"
        }
 CONN = dict()
 CURSOR = dict()
