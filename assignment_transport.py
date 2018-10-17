@@ -117,8 +117,13 @@ def process_mad(filename):
             startdate = pd.to_datetime(startstring)
             enddate = pd.to_datetime(endstring)
             working_duration = businessDuration(startdate,enddate,open_time,close_time,
-                                                holidaylist=holidaylist,unit='hour') * 3600.0
-            logger.debug("Working duration %s-%s is %f hr" % (startdate, enddate, working_duration))
+                                                holidaylist=holidaylist,unit='hour') * 3600
+            try:
+                working_duration = int(working_duration)
+            except ValueError as err:
+                logger.error(str(err) + ' for ' + startstring + ', ' + endstring)
+                working_duration = duration
+            logger.debug("Working duration %s-%s is %f sec" % (startdate, enddate, working_duration))
         else:
             working_duration = 0
         rec = {'id': row[0], 'user': row[1], 'organization': org,
