@@ -18,7 +18,7 @@ READ = {'all': "SELECT id,user,annotation,type,UNIX_TIMESTAMP(start_date),"
         'completed': "SELECT id,user,annotation,type,UNIX_TIMESTAMP(start_date),"
                      + "UNIX_TIMESTAMP(complete_date),"
                      + "UNIX_TIMESTAMP(complete_date)-UNIX_TIMESTAMP(start_date) "
-                     + "FROM assignment_vw WHERE is_complete=1 AND UNIX_TIMESTAMP(complete_date)>0"
+                     + "FROM assignment_vw WHERE is_complete=1 AND UNIX_TIMESTAMP(complete_date)>0 ORDER BY complete_date"
        }
 CONN = dict()
 CURSOR = dict()
