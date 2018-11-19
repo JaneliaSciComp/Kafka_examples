@@ -12,10 +12,10 @@ while True:
         record_metadata = future.get(timeout=10)
     except KafkaError:
         # Decide what to do if produce request failed...
-        print "Failed!"
+        print("Failed!")
         pass
     messagenum += 1
-    print 'Topic:', record_metadata.topic
-    print 'Partition:', record_metadata.partition
-    print 'Offset:', record_metadata.offset
+    print('Topic:', record_metadata.topic)
+    print('Partition:', record_metadata.partition)
+    print('Offset:', record_metadata.offset)
     sleep(randint(1,10))
