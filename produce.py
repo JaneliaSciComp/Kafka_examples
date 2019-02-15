@@ -1,10 +1,13 @@
+import json
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 from random import randint
 from time import gmtime, strftime, sleep
 
 # Produce
-producer = KafkaProducer(bootstrap_servers=['kafka.int.janelia.org','kafka2.int.janelia.org','kafka3.int.janelia.org'])
+producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                         key_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                         bootstrap_servers=['kafka.int.janelia.org','kafka2.int.janelia.org','kafka3.int.janelia.org'])
 messagenum = 1
 while True:
     future = producer.send('test', 'Periodic message ' + str(messagenum) + ' ' + strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()))
