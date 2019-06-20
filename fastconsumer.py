@@ -20,16 +20,18 @@ def read_messages():
     cons.subscribe([ARGS.topic])
     running = True
     while running:
-        msg = cons.poll()
-        if not msg.error():
+        try:
+            msg = cons.poll(timeout=5)
             ts = int(msg.timestamp()[1])
             print ("[%s] %s:%s:%d: key=%s value=%s" % (datetime.fromtimestamp(ts/1000).strftime('%Y-%m-%d %H:%M:%S'),
                                                        msg.topic(), msg.partition(),
                                                        msg.offset(),
                                                        str(msg.key()),
                                                        msg.value().decode('utf-8')))
-        elif msg.error().code() != KafkaError._PARTITION_EOF:
-            print(msg.error())
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print(message)
             running = False
     cons.close()
 
