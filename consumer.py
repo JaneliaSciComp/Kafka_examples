@@ -1,4 +1,5 @@
 import argparse
+import random
 import sys
 import time
 from kafka import KafkaConsumer, TopicPartition
@@ -16,7 +17,7 @@ def read_messages():
     try:
         offsetnum = int(ARGS.offset)
         autooffset = 'earliest'
-        ARGS.group = 'temporary' + str(time.time())
+        ARGS.group = 'temporary_' + str(time.time()) + '_' + str(random.randint(1,1001))
     except ValueError:
         offsetnum = None
         autooffset = ARGS.offset
@@ -47,7 +48,6 @@ def read_messages():
                                                        message.topic, message.partition,
                                                        message.offset, message.key,
                                                        message.value))
-            sys.exit(0)
         except UnicodeDecodeError:
             print("[%s] %s:%d:%d: key=%s CANNOT DECODE MESSAGE" % (datetime.fromtimestamp(message.timestamp/1000).strftime('%Y-%m-%d %H:%M:%S'),
                                                                    message.topic, message.partition,
