@@ -28,7 +28,7 @@ def read_messages():
                              consumer_timeout_ms=int(5000))
     toppart = TopicPartition(ARGS.topic, 0)
     if ARGS.timestamp:
-        timestamp = int(ARGS.timestamp) * 1000
+        timestamp = int(float(ARGS.timestamp) * 1000)
         timestamps = {toppart: timestamp}
         offsethash = consumer.offsets_for_times(timestamps)
         offsetnum = offsethash[toppart].offset
@@ -40,16 +40,23 @@ def read_messages():
             consumer.seek(toppart, int(offsetnum))
             consumer.commit()
             break
+    counter = 1
+    end_stamp = int(float(ARGS.end_timestamp) * 1000) if ARGS.end_timestamp else 0
     for message in consumer:
         if ARGS.debug:
             pprint(message)
+        if ARGS.end_timestamp and int(message.timestamp) > end_stamp:
+            sys.exit(0)
         try:
-            print ("[%s] %s:%d:%d: key=%s value=%s" % (datetime.fromtimestamp(message.timestamp/1000).strftime('%Y-%m-%d %H:%M:%S'),
+            print ("[%s] %s:%d:%d: key=%s value=%s" % (datetime.fromtimestamp(message.timestamp/1000.0).strftime('%Y-%m-%d %H:%M:%S.%f'),
                                                        message.topic, message.partition,
                                                        message.offset, message.key,
                                                        message.value))
+            if ARGS.limit and (counter >= int(ARGS.limit)):
+                sys.exit(0)
+            counter += 1
         except UnicodeDecodeError:
-            print("[%s] %s:%d:%d: key=%s CANNOT DECODE MESSAGE" % (datetime.fromtimestamp(message.timestamp/1000).strftime('%Y-%m-%d %H:%M:%S'),
+            print("[%s] %s:%d:%d: key=%s CANNOT DECODE MESSAGE" % (datetime.fromtimestamp(message.timestamp/1000.0).strftime('%Y-%m-%d %H:%M:%S.%f'),
                                                                    message.topic, message.partition,
                                                                    message.offset, message.key))
             pprint(message)
@@ -67,7 +74,9 @@ if __name__ == '__main__':
     PARSER.add_argument('--server', dest='server', default='', help='Server')
     PARSER.add_argument('--topic', dest='topic', default='test', help='Topic')
     PARSER.add_argument('--group', dest='group', default='', help='Group')
+    PARSER.add_argument('--limit', dest='limit', default=0, help='Number of messages to consume')
     PARSER.add_argument('--timestamp', dest='timestamp', default='', help='Timestamp (Epoch sec)')
+    PARSER.add_argument('--end_timestamp', dest='end_timestamp', default='', help='End timestamp (Epoch sec)')
     PARSER.add_argument('--offset', dest='offset', default='earliest',
                         help='offset (earliest, latest, or offset#)')
     PARSER.add_argument('--debug', dest='debug', action='store_true',
