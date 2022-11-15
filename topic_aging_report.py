@@ -34,6 +34,7 @@ def read_messages():
                     partnum = key.partition
             if not maxoff:
                 EMPTY.write("%s\n" % (topic))
+                EMPTY.flush()
                 COUNT['empty'] += 1
                 continue
             part = TopicPartition(topic, 0)
@@ -49,6 +50,7 @@ def read_messages():
                 timestr = strftime("%Y-%m-%d %H:%M:%S %Z", localtime(msg.timestamp/1000))
                 if delta >= 365:
                     OUTPUT.write("%s\t%s\t%s\n" % (topic, timestr, delta))
+                    OUTPUT.flush()
                     COUNT['old'] += 1
                 else:
                     COUNT['current'] += 1
