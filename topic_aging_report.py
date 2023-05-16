@@ -1,5 +1,6 @@
 import argparse
 from datetime import datetime, timedelta
+import os
 import sys
 import colorlog
 from kafka import KafkaConsumer, TopicPartition
@@ -22,6 +23,9 @@ def read_messages():
     topics = consumer.topics()
     for topic in tqdm(sorted(topics)):
         COUNT['topics'] += 1
+        if ARG.QUICK:
+            print(topic)
+            continue
         parts = consumer.partitions_for_topic(topic)
         if parts:
             partitions = [TopicPartition(topic, p) for p in parts]
@@ -62,13 +66,13 @@ def read_messages():
     print("Topics missing timestamp: %d" % (COUNT['timestamp']))
     EMPTY.close()
     if not COUNT['empty']:
-        remove(EMPTY_FILE)
+        os.remove(EMPTY_FILE)
     ERROR.close()
     if not COUNT['timestamp']:
-        remove(ERROR_FILE)
+        os.remove(ERROR_FILE)
     OUTPUT.close()
     if not COUNT['old']:
-        remove(OUTPUT_FILE)
+        os.remove(OUTPUT_FILE)
 
 
 if __name__ == '__main__':
@@ -79,18 +83,21 @@ if __name__ == '__main__':
     PARSER.add_argument('--group', dest='GROUP', default='', help='Group')
     PARSER.add_argument('--offset', dest='OFFSET', default='earliest',
                         help='offset (earliest or latest)')
+    PARSER.add_argument('--quick', dest='QUICK', action='store_true',
+                        default=False, help='Quick mode')
     PARSER.add_argument('--verbose', dest='VERBOSE', action='store_true',
                         default=False, help='Flag, chatty')
     PARSER.add_argument('--debug', dest='DEBUG', action='store_true',
                         default=False, help='Flag, Very chatty')
     ARG = PARSER.parse_args()
     LOGGER = colorlog.getLogger()
+    ATTR = colorlog.colorlog.logging if "colorlog" in dir(colorlog) else colorlog
     if ARG.DEBUG:
-        LOGGER.setLevel(colorlog.colorlog.logging.DEBUG)
+        LOGGER.setLevel(ATTR.DEBUG)
     elif ARG.VERBOSE:
-        LOGGER.setLevel(colorlog.colorlog.logging.INFO)
+        LOGGER.setLevel(ATTR.INFO)
     else:
-        LOGGER.setLevel(colorlog.colorlog.logging.WARNING)
+        LOGGER.setLevel(ATTR.WARNING)
     HANDLER = colorlog.StreamHandler()
     HANDLER.setFormatter(colorlog.ColoredFormatter())
     LOGGER.addHandler(HANDLER)
